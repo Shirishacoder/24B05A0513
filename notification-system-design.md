@@ -394,3 +394,106 @@ Benefits:
 - Reduced database load.
 - Better scalability.
 - Improved notification retrieval performance.
+
+# Stage 4
+
+## Performance Improvement Strategy
+
+### Problem Statement
+
+As the number of students and notifications grows, directly querying the database for every request can cause:
+
+- Increased response time
+- High database load
+- Reduced scalability
+- Poor user experience
+
+### Proposed Solution: Redis Caching
+
+Introduce Redis as a caching layer between the application and database.
+
+### Architecture
+
+Client Request
+
+↓
+
+API Server
+
+↓
+
+Redis Cache
+
+↓
+
+Database
+
+### Workflow
+
+1. User requests notifications.
+2. Application checks Redis cache.
+3. If data exists in cache (Cache Hit), return cached data.
+4. If data does not exist (Cache Miss), fetch from database.
+5. Store result in Redis.
+6. Return data to user.
+
+### Example Cache Key
+
+```text id="yu9m53"
+notifications:student:1042
+```
+
+### Advantages
+
+- Faster response times.
+- Reduced database load.
+- Better scalability.
+- Improved user experience.
+
+### Additional Performance Improvements
+
+#### Pagination
+
+```text id="sh6r9e"
+GET /notifications?page=1&limit=10
+```
+
+Benefits:
+
+- Smaller result sets.
+- Faster processing.
+
+#### Read Replicas
+
+Use read replicas for notification retrieval while the primary database handles writes.
+
+Benefits:
+
+- Reduced load on primary database.
+- Better throughput.
+
+#### Background Processing
+
+Use message queues for sending notifications.
+
+Examples:
+
+- RabbitMQ
+- Apache Kafka
+- AWS SQS
+
+Benefits:
+
+- Asynchronous processing.
+- Improved reliability.
+- Better scalability.
+
+### Trade-Offs
+
+Caching introduces:
+
+- Cache invalidation complexity.
+- Additional infrastructure.
+- Memory consumption.
+
+Despite these trade-offs, caching significantly improves performance for notification-heavy systems.
