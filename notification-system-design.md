@@ -579,3 +579,111 @@ Database Service
 ### Expected Outcome
 
 The system can efficiently deliver notifications to thousands of students without blocking application performance.
+
+# Stage 6
+
+## Priority Inbox Algorithm
+
+### Objective
+
+Display the top 10 most important notifications for a student.
+
+### Priority Rules
+
+Notification types have the following priority:
+
+1. Placement
+2. Result
+3. Event
+
+Priority Weights:
+
+```javascript
+Placement = 3;
+Result = 2;
+Event = 1;
+```
+
+### Ranking Strategy
+
+Notifications are sorted by:
+
+1. Notification Type Priority
+2. Most Recent Timestamp
+
+### Example Algorithm
+
+```javascript
+const weights = {
+  Placement: 3,
+  Result: 2,
+  Event: 1,
+};
+
+notifications.sort((a, b) => {
+  if (weights[b.type] !== weights[a.type]) {
+    return weights[b.type] - weights[a.type];
+  }
+
+  return new Date(b.createdAt) - new Date(a.createdAt);
+});
+
+const top10Notifications = notifications.slice(0, 10);
+```
+
+### Time Complexity
+
+Sorting:
+
+```text
+O(n log n)
+```
+
+Where:
+
+- n = total notifications
+
+### Optimization
+
+For very large datasets, use a Min Heap (Priority Queue).
+
+Benefits:
+
+- Maintains only top 10 notifications.
+- Reduces memory usage.
+- Faster processing for large datasets.
+
+Complexity:
+
+```text
+O(n log 10)
+≈ O(n)
+```
+
+### API
+
+```http
+GET /api/notifications/priority
+```
+
+Response:
+
+```json
+{
+  "notifications": [
+    {
+      "id": "uuid",
+      "type": "Placement",
+      "title": "TCS Hiring Drive",
+      "createdAt": "2026-06-25T10:00:00Z"
+    }
+  ]
+}
+```
+
+### Advantages
+
+- Important notifications appear first.
+- Better user experience.
+- Efficient handling of large notification volumes.
+- Scalable priority ranking system.
