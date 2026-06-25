@@ -497,3 +497,85 @@ Caching introduces:
 - Memory consumption.
 
 Despite these trade-offs, caching significantly improves performance for notification-heavy systems.
+
+# Stage 5
+
+## Bulk Notification System Design
+
+### Problem
+
+The system needs to send notifications to thousands of students simultaneously.
+
+A naive approach:
+
+```text
+for each student:
+    save notification
+    send email
+    send push notification
+```
+
+Problems:
+
+- Slow execution
+- High server load
+- Failure affects entire process
+- Poor scalability
+
+### Proposed Solution
+
+Use an asynchronous message queue architecture.
+
+### Architecture
+
+Notification Service
+
+↓
+
+Message Queue (RabbitMQ / Kafka)
+
+↓
+
+Worker Services
+
+↓
+
+Email Service
+
+Push Notification Service
+
+Database Service
+
+### Workflow
+
+1. Notification request received.
+2. Notification published to message queue.
+3. Multiple worker services consume messages.
+4. Workers send emails and push notifications.
+5. Workers store notification records in database.
+6. Failures are retried automatically.
+
+### Benefits
+
+- High scalability
+- Fault tolerance
+- Retry support
+- Faster response times
+- Independent service scaling
+
+### Queue Technologies
+
+- RabbitMQ
+- Apache Kafka
+- AWS SQS
+
+### Reliability Features
+
+- Retry mechanism
+- Dead letter queue (DLQ)
+- Message persistence
+- Worker health monitoring
+
+### Expected Outcome
+
+The system can efficiently deliver notifications to thousands of students without blocking application performance.
