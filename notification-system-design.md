@@ -305,3 +305,92 @@ For this notification system, PostgreSQL is preferred because notification data 
 3. Read replicas.
 4. Caching frequently accessed notifications.
 5. Partitioning notifications by date.
+
+# Stage 3
+
+## Query Optimization
+
+### Existing Query
+
+```sql
+SELECT *
+FROM notifications
+WHERE student_id = 1042
+AND is_read = false
+ORDER BY created_at DESC;
+```
+
+### Problems
+
+1. Full table scan when notifications grow.
+2. Slow filtering on student_id.
+3. Sorting overhead on created_at.
+4. Increased response time with large datasets.
+
+### Optimization Strategy
+
+Create a composite index:
+
+```sql
+CREATE INDEX idx_notification_query
+ON notifications(student_id, is_read, created_at DESC);
+```
+
+### Why Composite Index?
+
+The query filters using:
+
+- student_id
+- is_read
+
+and sorts using:
+
+- created_at DESC
+
+A composite index allows the database to efficiently filter and sort without scanning the entire table.
+
+### Additional Improvements
+
+#### Pagination
+
+```sql
+SELECT *
+FROM notifications
+WHERE student_id = 1042
+ORDER BY created_at DESC
+LIMIT 10 OFFSET 0;
+```
+
+Benefits:
+
+- Reduces memory usage.
+- Faster response times.
+- Better user experience.
+
+#### Select Required Columns Only
+
+Instead of:
+
+```sql
+SELECT *
+FROM notifications;
+```
+
+Use:
+
+```sql
+SELECT id, title, type, created_at
+FROM notifications;
+```
+
+Benefits:
+
+- Transfers less data.
+- Improves query performance.
+
+### Expected Result
+
+- Faster reads.
+- Reduced database load.
+- Better scalability.
+- Improved notification retrieval performance.
